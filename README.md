@@ -1,5 +1,7 @@
-# LCTF2017_BeRealDriver
-LCTF 2017 Reverse: BeRealDriver
+# LCTF 2017: BeRealDriver
+
+Check `doc/` folder to see design of this problem.
+
 
 
 * * *
