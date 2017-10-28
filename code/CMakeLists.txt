@@ -9,7 +9,4 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DDEBUG)
 endif()
 
-
-#target_compile_definitions(BeRealDriver PRIVATE DEBUG=1)
-
 add_executable(BeRealDriver ${SOURCE_FILES})
