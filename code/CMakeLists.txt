@@ -9,4 +9,8 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DDEBUG)
 endif()
 
-add_executable(BeRealDriver ${SOURCE_FILES})
+find_package(OpenCV REQUIRED)
+
+add_executable(BeRealDriver ${SOURCE_FILES} array_tools.hpp)
+
+target_link_libraries(BeRealDriver ${OpenCV_LIBS})
