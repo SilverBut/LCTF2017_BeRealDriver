@@ -7,6 +7,23 @@
 
 #include <cstdint>
 
+#ifdef DEBUG
+// Debug level:
+//   0  = None
+//   10 = Param info
+//   20 = Matrix value
+//   60 = Param info and matrix value, even in loop
+#define DEBUG_LEVEL 60
+#define DEBUG_VISION 1
+#else
+#define DEBUG_LEVEL 0
+#define DEBUG_VISION 0
+#endif
+
+/* Give some edge filter parameters here */
+const auto edge_blur = 4;
+const auto edge_threshold = 60;
+
 /*
  * Assume we are using a image axis, so the value for three parts are:
  *  Part a:  350

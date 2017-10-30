@@ -4,6 +4,7 @@
 #ifndef BEREALDRIVER_DEBUG_TOOLS_HPP_H
 #define BEREALDRIVER_DEBUG_TOOLS_HPP_H
 
+#include <numeric>
 /*
  * Copy & modified from https://stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
  */
