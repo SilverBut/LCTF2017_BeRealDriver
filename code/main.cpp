@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <cassert>
 
-//Include things for opencv
+//Include things for OpenCV
 #include <opencv2/core/utility.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -39,13 +39,15 @@ int main(int argc, char *argv[]) {
   // TODO Use methods in this link to put those file into the executable file
   // TODO  in order to add some complexity:
   // TODO  https://stackoverflow.com/questions/4864866/c-c-with-gcc-statically-add-resource-files-to-executable-library
-#if DEBUG_LEVEL >= 10
+#if DEBUG_SOURCE_FILE
   std::cout << "!!! Debug Hint: Will not use external arguments. Will use hard-code files." << std::endl;
   // Add address for example file
   MapSourceFile = "../examples/test-9.jpg";
   MapOffset = "../examples/test-9-8-xor.jpg";
   OpSourceFile = "../examples/test-op.jpg";
   OpOffset = "../examples/test-op-offset.jpg";
+#else
+#error "Not know how to get files!!!!!!!!"
 #endif
 
   std::cout << "Input parameters: " << std::endl;
@@ -70,12 +72,20 @@ int main(int argc, char *argv[]) {
 
   // Read file
   cv::Mat image_original;
+#if DEBUG_SOURCE_FILE
   image_original = cv::imread(MapSourceFile);
+#else
+#error "Not know how to get files!!!"
+#endif
   assert(!image_original.empty());
 
   // Read offset
   cv::Mat image_offset;
+#if DEBUG_SOURCE_FILE
   image_offset = cv::imread(MapOffset);
+#else
+#error "Not know how to get files!!!"
+#endif
   assert(!image_offset.empty());
 
   /* Generate real road */
@@ -98,15 +108,24 @@ int main(int argc, char *argv[]) {
 
 
   // Load real path and path offset now
-  cv::Mat path_original;
-  cv::Mat path_offset;
-  cv::Mat path_new;
+  cv::Mat op_original;
+  cv::Mat op_offset;
+  cv::Mat op_new;
+#if DEBUG_SOURCE_FILE
+  op_original = cv::imread(OpSourceFile);
+  op_offset = cv::imread(OpOffset);
+  assert(op_original.size() == op_offset.size());
+  assert(op_offset.type() == op_offset.type());
+  op_new.create(op_original.size(), op_original.type());
+#else
+#error "Not know how to get files!!!"
+#endif
   // get the real path
-  cv::bitwise_xor(path_original, path_offset, path_new);
+  cv::bitwise_xor(op_original, op_offset, op_new);
 
   // Make a LDW warning
   cv::Mat ldw_warn;
-  cv::bitwise_and(path_new, road_new, ldw_warn);
+  cv::bitwise_and(op_new, road_new, ldw_warn);
 
   // Judge if area(LDW)/area(ROAD)<=threshold, then disallow
   if ((double) (cv::countNonZero(ldw_warn)) / (double) (cv::countNonZero(road_new)) <= ldw_warn_threshold) {
@@ -114,12 +133,12 @@ int main(int argc, char *argv[]) {
   }
 
   // load crash_areas
-  cv::Mat crash_areas[];
+  cv::Mat crash_areas;
 
   // Judge if any crash happened
   for (auto crash_area : crash_areas) {
     cv::Mat crash_result;
-    cv::bitwise_and(crash_area, path_new, crash_result);
+    cv::bitwise_and(crash_area, op_new, crash_result);
     if ((double) (cv::countNonZero(crash_result)) / (double) (cv::countNonZero(crash_area)) <= crash_warn_threshold) {
       std::cout << "You are a good driver, but you can not control it well. You are FIRED!" << std::endl;
     }

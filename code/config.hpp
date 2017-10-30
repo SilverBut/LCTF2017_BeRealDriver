@@ -15,9 +15,12 @@
 //   60 = Param info and matrix value, even in loop
 #define DEBUG_LEVEL 10
 #define DEBUG_VISION 1
+// We now need to use file source. However later we will use more things
+#define DEBUG_SOURCE_FILE 1
 #else
 #define DEBUG_LEVEL 0
 #define DEBUG_VISION 0
+#define DEBUG_SOURCE_FILE 0
 #endif
 
 /* Give some edge filter parameters here */
@@ -53,5 +56,14 @@ const double path_zoom_factor = double(car_width) / double(lane_space_width_max)
 
 const double ldw_warn_threshold = 0.9;
 const double crash_warn_threshold = 0.5;
+
+const uint8_t crash_areas_inital_value[][4] =
+    {  //x, y, w, h
+        {1, 1, 1, 1},
+        {1, 1, 1, 1},
+        {1, 1, 1, 1},
+        {1, 1, 1, 1},
+        {1, 1, 1, 1}
+    };
 
 #endif //BEREALDRIVER_CONFIG_HPP
