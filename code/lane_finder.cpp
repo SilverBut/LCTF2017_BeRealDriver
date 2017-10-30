@@ -106,6 +106,7 @@ void find_edge(cv::Mat &Input, cv::Mat &Output) {
 }
 
 void find_lane(cv::Mat &Input, const int window_init, std::vector<cv::Point> &Output) {
+  int32_t prev_window_x = -1, prev_window_y = -1;
   for (int32_t window_x = window_init + lane_window_offset, window_y = current_pos_row;
        window_y + lane_window_height < Input.rows && window_y > 0 &&
            window_x > 0 && window_x + lane_window_width < Input.cols;
@@ -129,12 +130,26 @@ void find_lane(cv::Mat &Input, const int window_init, std::vector<cv::Point> &Ou
     cv::Point window_point;
     double x = window_moments.m10 / window_moments.m00;
     double y = window_moments.m01 / window_moments.m00;
-    window_point.x = static_cast<int>(window_x + x);
-    window_point.y = static_cast<int>(window_y + y);
+    // Fixed a bug for having difficulty when processing some special curves
+    // Detected if (x,y) is still in the detector window
+    if (x > lane_window_width || x < 0 || std::isnan(x)) {
+#if DEBUG_LEVEL >= 60
+      std::cout << "Warn: bad x at current window " << window_x << ", " << window_y << std::endl;
+#endif
+      x = lane_window_width - 2;
+    }
+    if (y > lane_window_height || y < 0 || std::isnan(y)) {
+#if DEBUG_LEVEL >= 60
+      std::cout << "Warn: bad y at current window " << window_x << ", " << window_y << std::endl;
+#endif
+      y = lane_window_height - 2;
+    }
 #if DEBUG_LEVEL >= 60
     std::cout << x << " " << y << std::endl;
     std::cout << window_point << std::endl;
 #endif
+    window_point.x = static_cast<int>(window_x + x);
+    window_point.y = static_cast<int>(window_y + y);
     // 3. Update window parameter
     window_x = window_point.x + lane_window_offset;
     window_x = window_x < 0 ? 0 :
@@ -142,6 +157,15 @@ void find_lane(cv::Mat &Input, const int window_init, std::vector<cv::Point> &Ou
     window_y = window_point.y;
     window_y = window_y < 0 ? 0 :
                window_y + lane_window_height > Input.rows ? Input.rows - lane_window_height : window_y;
+    // Fixed a bug for having difficulty when processing some special curves
+    if (prev_window_x == window_x) {
+      window_x += 2;
+    }
+    if (prev_window_y == window_y) {
+      window_y += 2;
+    }
+    prev_window_x = window_x;
+    prev_window_y = window_y;
   }
 
 }

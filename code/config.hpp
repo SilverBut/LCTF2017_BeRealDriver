@@ -13,7 +13,7 @@
 //   10 = Param info
 //   20 = Matrix value
 //   60 = Param info and matrix value, even in loop
-#define DEBUG_LEVEL 60
+#define DEBUG_LEVEL 20
 #define DEBUG_VISION 1
 #else
 #define DEBUG_LEVEL 0

@@ -99,12 +99,12 @@ int main(int argc, char *argv[]) {
   cv::imshow("High", edge); //show the boundary
 #endif
 
+  /*
+   * Set initial window. We will slide the window to find all possible areas to drive on
+   */
   int window_left, window_right;
   find_init_lane(edge, window_left, window_right);
 
-  /*
-   * Now initial window is set. We will slide the window to find all possible areas to drive on
-   */
   std::vector<cv::Point> left_lane, right_lane;
   // Find left boundary first
   find_lane(edge, window_left, left_lane);
