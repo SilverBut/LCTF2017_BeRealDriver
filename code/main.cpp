@@ -11,7 +11,6 @@
 #include <opencv2/highgui.hpp>
 #include <numeric>
 
-#include "array_tools.hpp"
 #include "config.hpp"
 #include "lane_finder.hpp"
 
@@ -43,6 +42,7 @@ int main(int argc, char *argv[]) {
 
   // Add address for example file
   std::string MapSourceFile("../examples/test-9.jpg");
+  std::string MapOffsetFile("../examples/test-9-8-xor.jpg");
   std::string OpSourceFile("../");
 
 #else
@@ -70,17 +70,24 @@ int main(int argc, char *argv[]) {
 #endif
 
 
-  cv::Mat image;
-
   // Read file
-  image = cv::imread(MapSourceFile);
-  assert(!image.empty());
+  cv::Mat image_original;
+  image_original = cv::imread(MapSourceFile);
+  assert(!image_original.empty());
 
   cv::Mat road;
-  find_road(image, road);
+  road.create(image_original.size(), CV_8U);
+  find_road(image_original, road);
   assert(!road.empty());
+#if DEBUG_VISION
+  cv::namedWindow("Source Road", cv::WINDOW_NORMAL);
+  cv::resizeWindow("Source Road", 1000, 1000);
+  cv::imshow("Source Road", road);
+#endif
 
-
+#if DEBUG_VISION
+  cv::waitKey(0);
+#endif
 
   return 0;
 }

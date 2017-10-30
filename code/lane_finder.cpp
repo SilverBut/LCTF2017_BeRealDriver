@@ -5,6 +5,7 @@
 #ifdef DEBUG
 #include <iostream>
 #endif
+#include <vector>
 #include "lane_finder.hpp"
 #include "array_tools.hpp"
 #include "config.hpp"
@@ -170,7 +171,7 @@ void find_lane(cv::Mat &Input, const int window_init, std::vector<cv::Point> &Ou
 
 }
 
-void find_road(cv::Mat &Input, cv::Mat &Output) {
+void find_road(cv::Mat Input, cv::Mat &Output) {
   /*
    * Here we will call a sample function to implement primary functions of a LDW, including:
    *    1. Read a top-view image
@@ -178,23 +179,20 @@ void find_road(cv::Mat &Input, cv::Mat &Output) {
    *    3. Find correct/acceptable path for the car according to car's arguments and the previous image
    * Notice, the input is a top-view image, which means we will not do undistort and perspective wrap at this point.
    */
-  cv::Mat image;
-  Input.copyTo(image);
-
   cv::Mat edge;
-  find_edge(image, edge);
+  find_edge(Input, edge);
 #if DEBUG_LEVEL >= 10
   std::cout << "Info of edge: " << edge.size() << ", " << edge.type() << std::endl;
 #endif
 #if DEBUG_VISION
   // For debug, show the edge
   cv::Mat cedge;  //covered the original image
-  cedge.create(image.size(), image.type());
+  cedge.create(Input.size(), Input.type());
   cedge = cv::Scalar::all(0);
-  image.copyTo(cedge, edge);
-  cv::namedWindow("High", cv::WINDOW_NORMAL);
-  cv::resizeWindow("High", 1000, 1000);
-  cv::imshow("High", edge); //show the boundary
+  Input.copyTo(cedge, edge);
+  cv::namedWindow("Image Boundary", cv::WINDOW_NORMAL);
+  cv::resizeWindow("Image Boundary", 1000, 1000);
+  cv::imshow("Image Boundary", edge); //show the boundary
 #endif
 
   /*
@@ -208,18 +206,29 @@ void find_road(cv::Mat &Input, cv::Mat &Output) {
   find_lane(edge, window_left, left_lane);
   // Then right boundary
   find_lane(edge, window_right, right_lane);
+
 #if DEBUG_VISION
+  cv::Mat cimage;
+  Input.copyTo(cimage);
   for (cv::Point i : left_lane) {
-    cv::circle(image, i, 3, cv::Scalar(0, 255, 0), 2);
+    cv::circle(cimage, i, 3, cv::Scalar(0, 255, 0), 2);
   }
   for (cv::Point i : right_lane) {
-    cv::circle(image, i, 3, cv::Scalar(0, 0, 255), 2);
+    cv::circle(cimage, i, 3, cv::Scalar(0, 0, 255), 2);
   }
-  cv::namedWindow("Lanes", cv::WINDOW_NORMAL);
-  cv::resizeWindow("Lanes", 1000, 1000);
-  cv::imshow("Lanes", image);
-
-  cv::waitKey(0);
+  cv::namedWindow("Road Boundary", cv::WINDOW_NORMAL);
+  cv::resizeWindow("Road Boundary", 1000, 1000);
+  cv::imshow("Road Boundary", cimage);
 #endif
+
+  // Now we have got all necessary parts. Let's try to make a polygon representing the whole image and the driving road
+  std::reverse(right_lane.begin(), right_lane.end());
+  std::vector<cv::Point> road = left_lane;
+  road.insert(road.end(), right_lane.begin(), right_lane.end());
+  const cv::Point *croad[] = {road.data()};
+  int nroad[] = {road.size()};
+
+  // Fill into the poly for futher changes
+  cv::fillPoly(Output, croad, nroad, 1, cv::Scalar(255), cv::LINE_8);
 
 }
