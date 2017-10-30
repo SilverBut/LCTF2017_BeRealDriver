@@ -67,6 +67,8 @@ code/.idea/**/sqlDataSources.xml
 code/.idea/**/dynamic.xml
 code/.idea/**/uiDesigner.xml
 
+code/.idea/
+
 # Gradle:
 code/.idea/**/gradle.xml
 code/.idea/**/libraries
