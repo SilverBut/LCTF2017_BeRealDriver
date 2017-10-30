@@ -3,7 +3,7 @@ project(BeRealDriver)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp config.hpp lane_finder.cpp lane_finder.hpp)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DDEBUG)

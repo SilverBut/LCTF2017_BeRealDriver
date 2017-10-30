@@ -12,6 +12,8 @@
 #include <numeric>
 
 #include "array_tools.hpp"
+#include "config.hpp"
+#include "lane_finder.hpp"
 
 int main(int argc, char *argv[]) {
 
@@ -156,22 +158,7 @@ int main(int argc, char *argv[]) {
 
   /*
    * From now, for most parameters, we can basically use uint16_t since they will not larget than 65536
-   * Assume we are using a image axis, so the value for three parts are:
-   *  Part a:  350
-   *  Part b:  950
-   *  Part c: 1600
    */
-
-  // Let's have a initial position in the graph
-  // Assume current position is (950, 10)
-  const uint16_t current_pos_col = 950;
-  const uint16_t current_pos_row = 10;
-  // And we set the road width to 3m=600px. add a range to it
-  const uint16_t lane_space_width_min = 500;
-  const uint16_t lane_space_width_max = 700;
-  // And also set our car's information
-  const uint16_t car_width = 720;
-  const uint16_t car_len = 400;
 
   /*
    * With all those parameters, we can find the initial lane now
@@ -205,93 +192,18 @@ int main(int argc, char *argv[]) {
   /*
    * Now initial window is set. We will slide the window to find all possible areas to drive on
    */
-  // For each lane, its normal width is between 30px to 40px
-  // So we add -10px to our window, and make our detector window width is 25px
-  // it should fit for most situations
-  const int32_t lane_window_width = 15;
-  const int32_t lane_window_offset = -10;
-  const int32_t lane_window_height = 10;
   std::vector<cv::Point> left_lane, right_lane;
   // Find left boundary first
-  for (int32_t window_x = window_left + lane_window_offset, window_y = current_pos_row;
-       window_y + lane_window_height < edge.rows && window_y > 0 &&
-           window_x > 0 && window_x + lane_window_width < edge.cols;
-      ) {
-#ifdef DEBUG
-//    std::cout << "window_x = " << window_x << ", window_y = " << window_y << std::endl;
-//    std::cout << "lane_window_width = " << lane_window_width << ", lane_window_height = " << lane_window_height
-//              << std::endl;
-#endif
-    // for each window:
-    // 0. Put current window into the vector
-    left_lane.emplace_back(cv::Point(window_x, window_y));
-    // 1. Get edge image in the window
-    cv::Mat window_image;
-    edge(
-        cv::Range(window_y, window_y + lane_window_height),
-        cv::Range(window_x, window_x + lane_window_width)
-    ).copyTo(window_image);
-    // 2. Find the center point of the image, which we think is the path point!
-    cv::Moments window_moments = cv::moments(window_image);
-    cv::Point window_point;
-    double x = window_moments.m10 / window_moments.m00;
-    double y = window_moments.m01 / window_moments.m00;
-    window_point.x = static_cast<int>(window_x + x);
-    window_point.y = static_cast<int>(window_y + y);
-#ifdef DEBUG
-//    std::cout << x << " " << y << std::endl;
-//    std::cout << window_point << std::endl;
-    cv::circle(image, window_point, 5, cv::Scalar(0, 255, 0), 2);
-#endif
-    // 3. Update window parameter
-    window_x = window_point.x + lane_window_offset;
-    window_x = window_x < 0 ? 0 :
-               window_x + lane_window_width > edge.cols ? edge.cols - lane_window_width : window_x + 2;
-    window_y = window_point.y;
-    window_y = window_y < 0 ? 0 :
-               window_y + lane_window_height > edge.rows ? edge.rows - lane_window_height : window_y + 2;
-  }
-
+  find_lane(edge, window_left, left_lane);
   // Then right boundary
-  for (int32_t window_x = window_right + lane_window_offset, window_y = current_pos_row;
-       window_y + lane_window_height < edge.rows && window_y > 0 &&
-           window_x > 0 && window_x + lane_window_width < edge.cols;
-      ) {
+  find_lane(edge, window_right, right_lane);
 #ifdef DEBUG
-//    std::cout << "window_x = " << window_x << ", window_y = " << window_y << std::endl;
-//    std::cout << "lane_window_width = " << lane_window_width << ", lane_window_height = " << lane_window_height
-//              << std::endl;
-#endif
-    // for each window:
-    // 0. Put current window into the vector
-    right_lane.emplace_back(cv::Point(window_x, window_y));
-    // 1. Get edge image in the window
-    cv::Mat window_image;
-    edge(
-        cv::Range(window_y, window_y + lane_window_height),
-        cv::Range(window_x, window_x + lane_window_width)
-    ).copyTo(window_image);
-    // 2. Find the center point of the image, which we think is the path point!
-    cv::Moments window_moments = cv::moments(window_image);
-    cv::Point window_point;
-    double x = window_moments.m10 / window_moments.m00;
-    double y = window_moments.m01 / window_moments.m00;
-    window_point.x = static_cast<int>(window_x + x);
-    window_point.y = static_cast<int>(window_y + y);
-#ifdef DEBUG
-//    std::cout << x << " " << y << std::endl;
-//    std::cout << window_point << std::endl;
-    cv::circle(image, window_point, 5, cv::Scalar(0, 0, 255), 2);
-#endif
-    // 3. Update window parameter
-    window_x = window_point.x + lane_window_offset;
-    window_x = window_x < 0 ? 0 :
-               window_x + lane_window_width > edge.cols ? edge.cols - lane_window_width : window_x + 2;
-    window_y = window_point.y;
-    window_y = window_y < 0 ? 0 :
-               window_y + lane_window_height > edge.rows ? edge.rows - lane_window_height : window_y + 2;
+  for (cv::Point i : left_lane) {
+    cv::circle(image, i, 3, cv::Scalar(0, 255, 0), 2);
   }
-#ifdef DEBUG
+  for (cv::Point i : right_lane) {
+    cv::circle(image, i, 3, cv::Scalar(0, 0, 255), 2);
+  }
   cv::namedWindow("Lanes", cv::WINDOW_NORMAL);
   cv::resizeWindow("Lanes", 1000, 1000);
   cv::imshow("Lanes", image);
