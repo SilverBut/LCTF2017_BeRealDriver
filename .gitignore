@@ -54,22 +54,22 @@ dkms.conf
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff:
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/dictionaries
+code/.idea/**/workspace.xml
+code/.idea/**/tasks.xml
+code/.idea/dictionaries
 
 # Sensitive or high-churn files:
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.xml
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
+code/.idea/**/dataSources/
+code/.idea/**/dataSources.ids
+code/.idea/**/dataSources.xml
+code/.idea/**/dataSources.local.xml
+code/.idea/**/sqlDataSources.xml
+code/.idea/**/dynamic.xml
+code/.idea/**/uiDesigner.xml
 
 # Gradle:
-.idea/**/gradle.xml
-.idea/**/libraries
+code/.idea/**/gradle.xml
+code/.idea/**/libraries
 
 # CMake
 cmake-build-debug/
@@ -87,13 +87,13 @@ cmake-build-release/
 out/
 
 # mpeltonen/sbt-idea plugin
-.idea_modules/
+code/.idea_modules/
 
 # JIRA plugin
 atlassian-ide-plugin.xml
 
 # Cursive Clojure plugin
-.idea/replstate.xml
+code/.idea/replstate.xml
 
 # Crashlytics plugin (for Android Studio and IntelliJ)
 com_crashlytics_export_strings.xml
