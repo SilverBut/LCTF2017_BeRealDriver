@@ -10,7 +10,7 @@
 #include "array_tools.hpp"
 #include "config.hpp"
 
-void find_init_lane(cv::Mat &Input, int &Output_window_left, int &Output_window_right) {
+void find_init_lane(const cv::Mat &Input, int &Output_window_left, int &Output_window_right) {
 
   // Threshold the image, and cut first 2m for a initial boundary hist test
   cv::Mat hist_input;
@@ -96,7 +96,7 @@ void find_init_lane(cv::Mat &Input, int &Output_window_left, int &Output_window_
 #endif
 }
 
-void find_edge(cv::Mat &Input, cv::Mat &Output) {
+void find_edge(const cv::Mat &Input, cv::Mat &Output) {
   // Pre-process it to gray-scale image
   cv::Mat gray;
   cv::cvtColor(Input, gray, cv::COLOR_BGR2GRAY);
@@ -106,7 +106,7 @@ void find_edge(cv::Mat &Input, cv::Mat &Output) {
   cv::Canny(blurImage, Output, edge_threshold, edge_threshold * 3);
 }
 
-void find_lane(cv::Mat &Input, const int window_init, std::vector<cv::Point> &Output) {
+void find_lane(const cv::Mat &Input, const int window_init, std::vector<cv::Point> &Output) {
   int32_t prev_window_x = -1, prev_window_y = -1;
   for (int32_t window_x = window_init + lane_window_offset, window_y = current_pos_row;
        window_y + lane_window_height < Input.rows && window_y > 0 &&
@@ -171,7 +171,7 @@ void find_lane(cv::Mat &Input, const int window_init, std::vector<cv::Point> &Ou
 
 }
 
-void find_road(cv::Mat Input, cv::Mat &Output) {
+void find_road(const cv::Mat &Input, cv::Mat &Output) {
   /*
    * Here we will call a sample function to implement primary functions of a LDW, including:
    *    1. Read a top-view image
@@ -184,7 +184,7 @@ void find_road(cv::Mat Input, cv::Mat &Output) {
 #if DEBUG_LEVEL >= 10
   std::cout << "Info of edge: " << edge.size() << ", " << edge.type() << std::endl;
 #endif
-#if DEBUG_VISION
+#if 0 && DEBUG_VISION
   // For debug, show the edge
   cv::Mat cedge;  //covered the original image
   cedge.create(Input.size(), Input.type());
@@ -207,7 +207,7 @@ void find_road(cv::Mat Input, cv::Mat &Output) {
   // Then right boundary
   find_lane(edge, window_right, right_lane);
 
-#if DEBUG_VISION
+#if 0 && DEBUG_VISION
   cv::Mat cimage;
   Input.copyTo(cimage);
   for (cv::Point i : left_lane) {
@@ -232,3 +232,4 @@ void find_road(cv::Mat Input, cv::Mat &Output) {
   cv::fillPoly(Output, croad, nroad, 1, cv::Scalar(255), cv::LINE_8);
 
 }
+
