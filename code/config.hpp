@@ -17,10 +17,12 @@
 #define DEBUG_VISION 1
 // We now need to use file source. However later we will use more things
 #define DEBUG_SOURCE_FILE 1
+#define REAL_FLAG 0
 #else
 #define DEBUG_LEVEL 0
 #define DEBUG_VISION 0
 #define DEBUG_SOURCE_FILE 0
+#define REAL_FLAG 1
 #endif
 
 /* Give some edge filter parameters here */
@@ -65,5 +67,11 @@ const uint8_t crash_areas_inital_value[][4] =
         {1, 1, 1, 1},
         {1, 1, 1, 1}
     };
+
+#if REAL_FLAG
+const std::string flag = "Congratulations! Flag is LCTF{}" << std::endl;
+#else
+const std::string flag = "Congratulations! You get the flag!";
+#endif
 
 #endif //BEREALDRIVER_CONFIG_HPP

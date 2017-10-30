@@ -124,11 +124,11 @@ int main(int argc, char *argv[]) {
   cv::bitwise_xor(op_original, op_offset, op_new);
 
   // Make a LDW warning
-  cv::Mat ldw_warn;
-  cv::bitwise_and(op_new, road_new, ldw_warn);
+  cv::Mat ldw_good;
+  cv::bitwise_and(op_new, road_new, ldw_good);
 
-  // Judge if area(LDW)/area(ROAD)<=threshold, then disallow
-  if ((double) (cv::countNonZero(ldw_warn)) / (double) (cv::countNonZero(road_new)) <= ldw_warn_threshold) {
+  // Judge if area(LDW)/area(PATH)<=threshold, then disallow
+  if ((double) (cv::countNonZero(ldw_good)) / (double) (cv::countNonZero(op_new)) <= ldw_warn_threshold) {
     std::cout << "Nope, you are not driving according to the rules." << std::endl;
   }
 
@@ -141,8 +141,12 @@ int main(int argc, char *argv[]) {
     cv::bitwise_and(crash_area, op_new, crash_result);
     if ((double) (cv::countNonZero(crash_result)) / (double) (cv::countNonZero(crash_area)) <= crash_warn_threshold) {
       std::cout << "You are a good driver, but you can not control it well. You are FIRED!" << std::endl;
+      return EAGAIN;
     }
   }
+
+  // If comes here, means everything is okay. Read the flag
+  std::cout << flag << std::endl;
 
 #if 0 && DEBUG_VISION
   cv::namedWindow("Srce Road", cv::WINDOW_NORMAL);
