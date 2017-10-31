@@ -42,10 +42,10 @@ int main(int argc, char *argv[]) {
 #if DEBUG_SOURCE_FILE
   std::cout << "!!! Debug Hint: Will not use external arguments. Will use hard-code files." << std::endl;
   // Add address for example file
-  MapSourceFile = "../examples/test-9.jpg";
-  MapOffset = "../examples/test-9-8-xor.jpg";
-  OpSourceFile = "../examples/test-op.jpg";
-  OpOffset = "../examples/test-op-offset.jpg";
+  MapSourceFile = "../examples/road.jpg";
+  MapOffset = "../examples/road-cir-xor.jpg";
+  OpSourceFile = "../examples/op.jpg";
+  OpOffset = "../examples/op-cir-xor.jpg";
 #else
 #error "Not know how to get files!!!!!!!!"
 #endif
@@ -93,54 +93,113 @@ int main(int argc, char *argv[]) {
   assert(image_offset.size() == image_original.size());
   cv::Mat image_new;
   image_new.create(image_original.size(), CV_8U);
-//  cv::bitwise_xor(image_original, image_offset, image_new);
-  cv::bitwise_xor(image_original, cv::Scalar(0), image_new);
+  cv::bitwise_xor(image_original, image_offset, image_new);
+//  // If we need a original image, do xor with 0.
+//  cv::bitwise_xor(image_original, cv::Scalar(0), image_new);
 
   cv::Mat road_new;
-  road_new.create(image_new.size(), CV_8U);
+  // Some code to get a original path and correct offset pairs
+# if 0
+  road_new = cv::Mat::zeros(image_original.size(), CV_8U);
+  find_road(image_original, road_new);
+  cv::imwrite("../examples/cv_op.jpg",road_new);
+  road_new = cv::Mat::zeros(image_new.size(), CV_8U);
+  find_road(image_new, road_new);
+  cv::imwrite("../examples/cv_op-cir.jpg",road_new);
+#endif
+  road_new = cv::Mat::zeros(image_new.size(), CV_8UC1);
   find_road(image_new, road_new);
   assert(!road_new.empty());  //now road_new is the real road
-#if 1 & DEBUG_VISION
+#if 1 && DEBUG_VISION
   cv::namedWindow("New Road", cv::WINDOW_NORMAL);
   cv::resizeWindow("New Road", 1000, 1000);
   cv::imshow("New Road", road_new);
 #endif
 
 
+
   // Load real path and path offset now
   cv::Mat op_original;
   cv::Mat op_offset;
-  cv::Mat op_new;
+  cv::Mat op_new, _op_new;
 #if DEBUG_SOURCE_FILE
   op_original = cv::imread(OpSourceFile);
   op_offset = cv::imread(OpOffset);
   assert(op_original.size() == op_offset.size());
-  assert(op_offset.type() == op_offset.type());
-  op_new.create(op_original.size(), op_original.type());
+  assert(op_original.type() == op_offset.type());
+  assert(op_original.size() == image_original.size());
 #else
 #error "Not know how to get files!!!"
 #endif
+  assert(!op_original.empty());
+  assert(!op_offset.empty());
   // get the real path
-  cv::bitwise_xor(op_original, op_offset, op_new);
+  _op_new = cv::Mat::zeros(op_original.size(), CV_8U);
+  cv::bitwise_xor(op_original, op_offset, _op_new);
+////   Same above!
+//  cv::bitwise_xor(op_original, cv::Scalar(0), _op_new);
+  op_new = cv::Mat::zeros(op_original.size(), CV_8UC1);
+  cvtColor(_op_new, op_new, CV_BGR2GRAY);
+#if 1 && DEBUG_VISION
+  cv::namedWindow("New Op", cv::WINDOW_NORMAL);
+  cv::resizeWindow("New Op", 1000, 1000);
+  cv::imshow("New Op", op_new);
+#endif
 
-  // Make a LDW warning
+  // Make a LDW warning map
   cv::Mat ldw_good;
+  assert(op_new.size() == road_new.size());
+//  std::cout << _op_new.type() << "," << op_new.type() << "," << road_new.type() << std::endl;
+  assert(op_new.type() == road_new.type());
+  ldw_good = cv::Mat::zeros(op_new.size(), op_new.type());
   cv::bitwise_and(op_new, road_new, ldw_good);
-
   // Judge if area(LDW)/area(PATH)<=threshold, then disallow
   if ((double) (cv::countNonZero(ldw_good)) / (double) (cv::countNonZero(op_new)) <= ldw_warn_threshold) {
-    std::cout << "Nope, you are not driving according to the rules." << std::endl;
+    std::cout << "Nope, you are not a driver at all. Do u have a license? Crack one!" << std::endl;
+    return EAGAIN;
   }
 
   // load crash_areas
-  cv::Mat crash_areas;
+  cv::Mat crash_detector;
+  cv::Mat crash_result;
 
   // Judge if any crash happened
-  for (auto crash_area : crash_areas) {
-    cv::Mat crash_result;
-    cv::bitwise_and(crash_area, op_new, crash_result);
-    if ((double) (cv::countNonZero(crash_result)) / (double) (cv::countNonZero(crash_area)) <= crash_warn_threshold) {
-      std::cout << "You are a good driver, but you can not control it well. You are FIRED!" << std::endl;
+  for (const uint16_t *crash_area : crash_areas_initial_value) {
+#if DEBUG_LEVEL >= 10
+    std::cout << "crash_area is (" << crash_area[0] << ", " << crash_area[1] << ", " << crash_area[2] << ", "
+              << crash_area[3] << ")" << std::endl;
+#endif
+    crash_detector = cv::Mat::zeros(road_new.size(), road_new.type());
+    crash_result = cv::Mat::zeros(road_new.size(), road_new.type());
+    // Fill a poly according to the arguments
+    std::vector<cv::Point> _crash_rect;
+    _crash_rect.emplace_back(cv::Point(crash_area[0], crash_area[1]));
+    _crash_rect.emplace_back(cv::Point(crash_area[0] + crash_area[2], crash_area[1]));
+    _crash_rect.emplace_back(cv::Point(crash_area[0] + crash_area[2], crash_area[1] + crash_area[3]));
+    _crash_rect.emplace_back(cv::Point(crash_area[0], crash_area[1] + crash_area[3]));
+    const cv::Point *crash_rect[] = {_crash_rect.data()};
+    int crash_rect_count[] = {static_cast<int>(_crash_rect.size())};
+    cv::fillPoly(crash_detector, crash_rect, crash_rect_count, 1, cv::Scalar(255));
+# if 0 && DEBUG_VISION
+    cv::namedWindow("Detector Block", cv::WINDOW_NORMAL);
+    cv::resizeWindow("Detector Block", 1000, 1000);
+    cv::imshow("Detector Block", crash_detector);
+    cv::waitKey(0);
+#endif
+    cv::bitwise_and(crash_detector, op_new, crash_result);
+# if 1 && DEBUG_VISION
+    cv::namedWindow("Detector Result", cv::WINDOW_NORMAL);
+    cv::resizeWindow("Detector Result", 1000, 1000);
+    cv::imshow("Detector Result", crash_result);
+    cv::waitKey(0);
+#endif
+#if DEBUG_LEVEL >= 10
+    std::cout << "Val " << ((double) (cv::countNonZero(crash_result)) / (double) (cv::countNonZero(crash_detector)))
+              << " with std " << (double(crash_area[4]) / 100) << std::endl;
+#endif
+    if ((double) (cv::countNonZero(crash_result)) / (double) (cv::countNonZero(crash_detector))
+        <= (double(crash_area[4]) / 100)) {
+      std::cout << "You are a driver, but you can not control it well. You are FIRED!" << std::endl;
       return EAGAIN;
     }
   }
@@ -149,12 +208,6 @@ int main(int argc, char *argv[]) {
   std::cout << flag << std::endl;
 
 #if 0 && DEBUG_VISION
-  cv::namedWindow("Srce Road", cv::WINDOW_NORMAL);
-  cv::resizeWindow("Srce Road", 1000, 1000);
-  cv::imshow("Srce Road", path_original);
-#endif
-
-#if DEBUG_VISION
   cv::waitKey(0);
 #endif
 

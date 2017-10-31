@@ -14,7 +14,7 @@
 //   20 = Matrix value
 //   60 = Param info and matrix value, even in loop
 #define DEBUG_LEVEL 10
-#define DEBUG_VISION 1
+#define DEBUG_VISION 0
 // We now need to use file source. However later we will use more things
 #define DEBUG_SOURCE_FILE 1
 #define REAL_FLAG 0
@@ -54,24 +54,24 @@ const int32_t lane_window_width = 15;
 const int32_t lane_window_offset = -10;
 const int32_t lane_window_height = 10;
 
-const double path_zoom_factor = double(car_width) / double(lane_space_width_max);
-
 const double ldw_warn_threshold = 0.9;
-const double crash_warn_threshold = 0.5;
+const double crash_warn_threshold = 0.7;
 
-const uint8_t crash_areas_inital_value[][4] =
+const uint16_t crash_areas_initial_value[7][5] =
     {  //x, y, w, h
-        {1, 1, 1, 1},
-        {1, 1, 1, 1},
-        {1, 1, 1, 1},
-        {1, 1, 1, 1},
-        {1, 1, 1, 1}
+        {720, 50, 500, 500, 80},
+        {330, 655, 500, 500, 70},
+        {70, 1510, 520, 1050, 75},
+        {535, 2585, 615, 660, 65},
+        {1070, 3900, 455, 430, 70},
+        {1350, 4710, 455, 430, 80},
+        {710, 5790, 440, 210, 75}
     };
 
 #if REAL_FLAG
-const std::string flag = "Congratulations! Flag is LCTF{}" << std::endl;
+const std::string flag = "Hey man you are a fxxking real driver! Flag is LCTF{}" ;
 #else
-const std::string flag = "Congratulations! You get the flag!";
+const std::string flag = "Hey man you are a fxxking real driver! You get the flag!";
 #endif
 
 #endif //BEREALDRIVER_CONFIG_HPP
