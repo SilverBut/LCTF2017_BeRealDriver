@@ -12,6 +12,8 @@ Under normal mode, most of the crash areas will not be passed, and attack will g
 
 Files in `code/examples/road-cir-xor.jpg` and `code/examples/op-cir-xor.jpg` is one of the right solutions. Of course you can have some more interestring solutions, for example putting a rabbit on the map ;)
 
+Flag is `LCTF{We1c0m3_to_ldw_wor1d_And_is_th3_malf0rmed_fi13_1337_en0ugh_f0r_me}`
+
 The program is originally designed as a multi-thread w/ CUDA accelerated problem, but considering there is still no public available (and chep enough) GPU VPS (aka. Cloud server) for us, I have to abandon the idea.
 
 This contest might be the last time for me, to write a challenge for CTF games. Thanks for XDSEC, and thanks for all my friends.
