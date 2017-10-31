@@ -15,7 +15,6 @@
 #include "lane_finder.hpp"
 #include "Resource.hpp"
 
-
 int main(int argc, char *argv[]) {
 
   std::cout << "Welcome to LCTF 2017 Old Driver Platform!" << std::endl;
@@ -30,7 +29,7 @@ int main(int argc, char *argv[]) {
   if (argc != 4 + 1) {
 #endif
     std::cout << "Seems incorrect parameters are used?" << std::endl;
-#if DEBUG_LEVEL >= 10
+#if !((DEBUG || DEBUG_SOURCE_FILE) && (DEBUG_LEVEL >= 10))
     return EINVAL;
 #endif
   }
@@ -89,6 +88,8 @@ int main(int argc, char *argv[]) {
   std::fwrite(_image_original.data(), _image_original.size(), 1, _image_original_tmp);
   std::fflush(_image_original_tmp);
   image_original = cv::imread(_image_original_tmp_name);
+  std::fclose(_image_original_tmp);
+  remove(_image_original_tmp_name);
 #endif
   assert(!image_original.empty());
 
@@ -140,6 +141,8 @@ int main(int argc, char *argv[]) {
   std::fwrite(_op_original.data(), _op_original.size(), 1, _op_original_tmp);
   std::fflush(_op_original_tmp);
   op_original = cv::imread(_op_original_tmp_name);
+  std::fclose(_op_original_tmp);
+  remove(_op_original_tmp_name);
 #endif
   assert(!op_original.empty());
 
