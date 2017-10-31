@@ -69,7 +69,8 @@ const uint16_t crash_areas_initial_value[7][5] =
     };
 
 #if REAL_FLAG
-const std::string flag = "Hey man you are a fxxking real driver! Flag is LCTF{}" ;
+const std::string flag =
+    "Hey man you are a fxxking real driver! Flag is LCTF{We1c0m3_to_ldw_wor1d_And_is_th3_malf0rmed_fi13_1337_en0ugh_f0r_me}";
 #else
 const std::string flag = "Hey man you are a fxxking real driver! You get the flag!";
 #endif
