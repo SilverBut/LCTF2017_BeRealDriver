@@ -13,6 +13,8 @@
 
 #include "config.hpp"
 #include "lane_finder.hpp"
+#include "Resource.hpp"
+
 
 int main(int argc, char *argv[]) {
 
@@ -22,7 +24,11 @@ int main(int argc, char *argv[]) {
   std::cout << "!!! UNDER DEBUG MODE !!!" << std::endl;
 #endif
 
+#if DEBUG || DEBUG_SOURCE_FILE
   if (argc != 6 + 1) {
+#else
+  if (argc != 4 + 1) {
+#endif
     std::cout << "Seems incorrect parameters are used?" << std::endl;
 #if DEBUG_LEVEL >= 10
     return EINVAL;
@@ -31,32 +37,34 @@ int main(int argc, char *argv[]) {
 
   std::string Token(argv[1]);
   std::string Date(argv[2]);
-  std::string MapSourceFile(argv[3]);
-  std::string MapOffset(argv[4]);
-  std::string OpSourceFile(argv[5]);
-  std::string OpOffset(argv[6]);
+  std::string MapOffset(argv[3]);
+  std::string OpOffset(argv[4]);
+#if DEBUG_SOURCE_FILE
+  std::string MapSourceFile(argv[5]);
+  std::string OpSourceFile(argv[6]);
+#endif
 
   // TODO Use methods in this link to put those file into the executable file
   // TODO  in order to add some complexity:
   // TODO  https://stackoverflow.com/questions/4864866/c-c-with-gcc-statically-add-resource-files-to-executable-library
 #if DEBUG_SOURCE_FILE
-  std::cout << "!!! Debug Hint: Will not use external arguments. Will use hard-code files." << std::endl;
+  std::cout << "!!! Debug Hint: Notice the files!" << std::endl;
   // Add address for example file
-  MapSourceFile = "../examples/road.jpg";
-  MapOffset = "../examples/road-cir-xor.jpg";
-  OpSourceFile = "../examples/op.jpg";
-  OpOffset = "../examples/op-cir-xor.jpg";
-#else
-#error "Not know how to get files!!!!!!!!"
+//  MapSourceFile = "../examples/road.jpg";
+//  MapOffset = "../examples/road-cir-xor.jpg";
+//  OpSourceFile = "../examples/op.jpg";
+//  OpOffset = "../examples/op-cir-xor.jpg";
 #endif
 
   std::cout << "Input parameters: " << std::endl;
   std::cout << " - Token:         " << Token << std::endl;
   std::cout << " - Date:          " << Date << std::endl;
-  std::cout << " - MapSourceFile: " << MapSourceFile << std::endl;
   std::cout << " - MapOffsetFile: " << MapOffset << std::endl;
-  std::cout << " - OpSourceFile:  " << OpSourceFile << std::endl;
   std::cout << " - OpOffsetFIle:  " << OpOffset << std::endl;
+#if DEBUG_SOURCE_FILE
+  std::cout << " - MapSourceFile: " << MapSourceFile << std::endl;
+  std::cout << " - OpSourceFile:  " << OpSourceFile << std::endl;
+#endif
 
 #if DEBUG_LEVEL >= 10
   std::cout << "Debug Environment Info:" << std::endl;
@@ -75,17 +83,18 @@ int main(int argc, char *argv[]) {
 #if DEBUG_SOURCE_FILE
   image_original = cv::imread(MapSourceFile);
 #else
-#error "Not know how to get files!!!"
+  Resource _image_original = LOAD_RESOURCE(road_jpg);
+  char *_image_original_tmp_name = std::tmpnam(nullptr);
+  std::FILE *_image_original_tmp = std::fopen(_image_original_tmp_name, "wb");
+  std::fwrite(_image_original.data(), _image_original.size(), 1, _image_original_tmp);
+  std::fflush(_image_original_tmp);
+  image_original = cv::imread(_image_original_tmp_name);
 #endif
   assert(!image_original.empty());
 
   // Read offset
   cv::Mat image_offset;
-#if DEBUG_SOURCE_FILE
   image_offset = cv::imread(MapOffset);
-#else
-#error "Not know how to get files!!!"
-#endif
   assert(!image_offset.empty());
 
   /* Generate real road */
@@ -124,15 +133,21 @@ int main(int argc, char *argv[]) {
   cv::Mat op_new, _op_new;
 #if DEBUG_SOURCE_FILE
   op_original = cv::imread(OpSourceFile);
+#else
+  Resource _op_original = LOAD_RESOURCE(op_jpg);
+  char *_op_original_tmp_name = std::tmpnam(nullptr);
+  std::FILE *_op_original_tmp = std::fopen(_op_original_tmp_name, "wb");
+  std::fwrite(_op_original.data(), _op_original.size(), 1, _op_original_tmp);
+  std::fflush(_op_original_tmp);
+  op_original = cv::imread(_op_original_tmp_name);
+#endif
+  assert(!op_original.empty());
+
   op_offset = cv::imread(OpOffset);
+  assert(!op_offset.empty());
   assert(op_original.size() == op_offset.size());
   assert(op_original.type() == op_offset.type());
   assert(op_original.size() == image_original.size());
-#else
-#error "Not know how to get files!!!"
-#endif
-  assert(!op_original.empty());
-  assert(!op_offset.empty());
   // get the real path
   _op_new = cv::Mat::zeros(op_original.size(), CV_8U);
   cv::bitwise_xor(op_original, op_offset, _op_new);
