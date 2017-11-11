@@ -4,8 +4,8 @@
 	驾照考试越来越严了，好不容易找到一个包过的。去驾校报道，教练给了我一个U盘，里面放了个文件，还放了IDA 7.0的安装包。哇，大城市的驾校果然有钱，连IDA都送。就是密码要自己搞。教练给了个神秘网址：http://showmethepassword.l-ctf.org
 题目Flag：
 	LCTF{We1c0m3_to_ldw_wor1d_And_is_th3_malf0rmed_fi13_1337_en0ugh_f0r_me}
-建议放题时间点：
-	26小时之后
+难度：
+	四颗星	
 部署注意：
 	1. 将showmethepassword.l-ctf.org绑定到IP地址__上
 	2. 将showmethepassword.l-ctf.org放到cloudflare后，并联系silver获取cloudflare配置，以免被D
