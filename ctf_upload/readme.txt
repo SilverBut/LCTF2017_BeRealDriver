@@ -9,7 +9,7 @@
 部署注意：
 	1. 将showmethepassword.l-ctf.org绑定到IP地址__上
 	2. 将showmethepassword.l-ctf.org放到cloudflare后，并联系silver获取cloudflare配置，以免被D
-	3. 默认放stripped版本。34小时后如果没有队伍解出，视情况放Unstripped版本。
+	3. Hint: https://en.wikipedia.org/wiki/Lane_departure_warning_system
 题目Writeup：
 	http://github.com/SilverBut/LCTF2017_BeRealDriver
 	（私有Repo，比赛结束后开放）
