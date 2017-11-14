@@ -1,7 +1,7 @@
 题目名称：
 	BeRealDriver
 题目描述：
-	驾照考试越来越严了，好不容易找到一个包过的。去驾校报道，教练给了我一个U盘，里面放了个文件，还放了IDA 7.0的安装包。哇，大城市的驾校果然有钱，连IDA都送。就是密码要自己搞。教练给了个神秘网址：http://showmethepassword.l-ctf.org
+	驾照考试越来越严了，好不容易找到一个包过的。去驾校报道，教练给了我一个U盘，里面放了个文件，还放了IDA 7.0的安装包。哇，大城市的驾校果然有钱，连IDA都送。就是密码要自己搞。教练给了个神秘网址：http://showmethepassword.l-ctf.org/driver-ranker.php
 题目Flag：
 	LCTF{We1c0m3_to_ldw_wor1d_And_is_th3_malf0rmed_fi13_1337_en0ugh_f0r_me}
 难度：
