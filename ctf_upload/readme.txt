@@ -7,7 +7,7 @@
 难度：
 	四颗星	
 部署注意：
-	1. 将showmethepassword.l-ctf.org绑定到IP地址__上
+	1. 将showmethepassword.l-ctf.org绑定到IP地址119.28.105.240上
 	2. 将showmethepassword.l-ctf.org放到cloudflare后，并联系silver获取cloudflare配置，以免被D
 	3. Hint: https://en.wikipedia.org/wiki/Lane_departure_warning_system
 题目Writeup：
